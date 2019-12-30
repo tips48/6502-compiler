@@ -35,11 +35,11 @@ fn load_and_disassemble(filename: String) {
     println!("Compiling: {}", filename);
     let contents = fs::read_to_string(filename).expect("Error: Unable to read file.");
 
-    println!("Read: {}", contents.trim());
+    //println!("Read: {}", contents.trim());
 
     let mut tokens = tokenize(contents.as_str().chars().collect());
 
-    println!("Tokens: {:?}", tokens);
+    //println!("Tokens: {:?}", tokens);
 
     let program = parse_program(&mut tokens);
 
