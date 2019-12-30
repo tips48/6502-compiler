@@ -54,6 +54,6 @@ fn load_and_disassemble(filename: String) {
 fn main() {
     println!("Starting compiler.");
 
-    load_and_assemble("samples/return_not_2.c".to_string());
-    load_and_disassemble("samples/return_not_2.c".to_string());
+    load_and_assemble("samples/stage2/return_not_2.c".to_string());
+    load_and_disassemble("samples/stage2/return_not_2.c".to_string());
 }
