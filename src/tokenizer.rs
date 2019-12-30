@@ -1,5 +1,4 @@
 use std::collections::VecDeque;
-use std::str::Chars;
 
 #[derive(Debug)]
 pub enum Token {
@@ -18,13 +17,25 @@ enum TokenzierStateMachine {
 
 type TSM = TokenzierStateMachine;
 
-pub fn tokenize(chars: Chars<'_>) -> VecDeque<Token> {
+pub fn tokenize(chars: Vec<char>) -> VecDeque<Token> {
     let mut state = TSM::NewToken;
 
     let mut tokens: VecDeque<Token> = VecDeque::new();
     let mut word = String::new();
 
-    for c in chars {
+    let size = chars.len();
+    let mut index = 0;
+    let mut grab_char = true;
+    let mut c = ' ';
+
+    while index < size {
+        if grab_char {
+            c = chars[index];
+            index += 1;
+        }
+
+        grab_char = true; // by default get a character each loop
+
         match state {
             TSM::NewToken => {
                 if c == '{' {
@@ -66,23 +77,7 @@ pub fn tokenize(chars: Chars<'_>) -> VecDeque<Token> {
                     state = TSM::NewToken;
                     word.clear();
 
-                    if c == '{' {
-                        tokens.push_back(Token::Keyword("{".to_string()));
-                    } else if c == '}' {
-                        tokens.push_back(Token::Keyword("}".to_string()));
-                    } else if c == '(' {
-                        tokens.push_back(Token::Keyword("(".to_string()));
-                    } else if c == ')' {
-                        tokens.push_back(Token::Keyword(")".to_string()));
-                    } else if c == ';' {
-                        tokens.push_back(Token::Keyword(";".to_string()));
-                    } else if c == '-' {
-                        tokens.push_back(Token::Keyword("-".to_string()));
-                    } else if c == '~' {
-                        tokens.push_back(Token::Keyword("~".to_string()));
-                    } else if c == '!' {
-                        tokens.push_back(Token::Keyword("!".to_string()));
-                    }
+                    grab_char = false; // Process into keyword or word
                 } else {
                     word.push(c);
                 }
@@ -98,23 +93,7 @@ pub fn tokenize(chars: Chars<'_>) -> VecDeque<Token> {
                     state = TSM::NewToken;
                     word.clear();
 
-                    if c == '{' {
-                        tokens.push_back(Token::Keyword("{".to_string()));
-                    } else if c == '}' {
-                        tokens.push_back(Token::Keyword("}".to_string()));
-                    } else if c == '(' {
-                        tokens.push_back(Token::Keyword("(".to_string()));
-                    } else if c == ')' {
-                        tokens.push_back(Token::Keyword(")".to_string()));
-                    } else if c == ';' {
-                        tokens.push_back(Token::Keyword(";".to_string()));
-                    } else if c == '-' {
-                        tokens.push_back(Token::Keyword("-".to_string()));
-                    } else if c == '~' {
-                        tokens.push_back(Token::Keyword("~".to_string()));
-                    } else if c == '!' {
-                        tokens.push_back(Token::Keyword("!".to_string()));
-                    }
+                    grab_char = false; // Process into keyword
                 } else {
                     word.push(c);
                 }

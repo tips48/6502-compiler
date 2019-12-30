@@ -15,7 +15,7 @@ impl FromStr for Program {
     type Err = ParseCharError;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
-        let tokens: &mut VecDeque<Token> = &mut tokenize(input.chars());
+        let tokens: &mut VecDeque<Token> = &mut tokenize(input.chars().collect());
 
         Ok(parse_program(tokens))
     }

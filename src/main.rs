@@ -17,7 +17,7 @@ fn load_and_assemble(filename: String) {
 
     println!("Read: {}", contents.trim());
 
-    let mut tokens = tokenize(contents.as_str().chars());
+    let mut tokens = tokenize(contents.as_str().chars().collect());
 
     println!("Tokens: {:?}", tokens);
 
@@ -37,7 +37,7 @@ fn load_and_disassemble(filename: String) {
 
     println!("Read: {}", contents.trim());
 
-    let mut tokens = tokenize(contents.as_str().chars());
+    let mut tokens = tokenize(contents.as_str().chars().collect());
 
     println!("Tokens: {:?}", tokens);
 
