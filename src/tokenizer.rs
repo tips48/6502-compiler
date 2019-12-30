@@ -4,11 +4,11 @@ use std::str::Chars;
 #[derive(Debug)]
 pub enum Token {
     Keyword(String),
-    Number(u32),
+    Number(u8),
     Word(String),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 enum TokenzierStateMachine {
     NewToken,
     Number,
@@ -37,6 +37,12 @@ pub fn tokenize(chars: Chars<'_>) -> VecDeque<Token> {
                     tokens.push_back(Token::Keyword(")".to_string()));
                 } else if c == ';' {
                     tokens.push_back(Token::Keyword(";".to_string()));
+                } else if c == '-' {
+                    tokens.push_back(Token::Keyword("-".to_string()));
+                } else if c == '~' {
+                    tokens.push_back(Token::Keyword("~".to_string()));
+                } else if c == '!' {
+                    tokens.push_back(Token::Keyword("!".to_string()));
                 } else if c.is_whitespace() {
                     // Do nothing
                 } else if c.is_digit(10) {
@@ -52,11 +58,11 @@ pub fn tokenize(chars: Chars<'_>) -> VecDeque<Token> {
 
             TSM::Number => {
                 if c.is_whitespace() {
-                    tokens.push_back(Token::Number(word.parse::<u32>().unwrap()));
+                    tokens.push_back(Token::Number(word.parse::<u8>().unwrap()));
                     state = TSM::NewToken;
                     word.clear();
                 } else if !c.is_numeric() {
-                    tokens.push_back(Token::Number(word.parse::<u32>().unwrap()));
+                    tokens.push_back(Token::Number(word.parse::<u8>().unwrap()));
                     state = TSM::NewToken;
                     word.clear();
 
@@ -70,6 +76,12 @@ pub fn tokenize(chars: Chars<'_>) -> VecDeque<Token> {
                         tokens.push_back(Token::Keyword(")".to_string()));
                     } else if c == ';' {
                         tokens.push_back(Token::Keyword(";".to_string()));
+                    } else if c == '-' {
+                        tokens.push_back(Token::Keyword("-".to_string()));
+                    } else if c == '~' {
+                        tokens.push_back(Token::Keyword("~".to_string()));
+                    } else if c == '!' {
+                        tokens.push_back(Token::Keyword("!".to_string()));
                     }
                 } else {
                     word.push(c);
@@ -96,6 +108,12 @@ pub fn tokenize(chars: Chars<'_>) -> VecDeque<Token> {
                         tokens.push_back(Token::Keyword(")".to_string()));
                     } else if c == ';' {
                         tokens.push_back(Token::Keyword(";".to_string()));
+                    } else if c == '-' {
+                        tokens.push_back(Token::Keyword("-".to_string()));
+                    } else if c == '~' {
+                        tokens.push_back(Token::Keyword("~".to_string()));
+                    } else if c == '!' {
+                        tokens.push_back(Token::Keyword("!".to_string()));
                     }
                 } else {
                     word.push(c);

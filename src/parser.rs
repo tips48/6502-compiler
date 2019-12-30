@@ -4,8 +4,65 @@ use crate::program::Program;
 use crate::program::Function;
 use crate::program::Statement;
 use crate::program::Expression;
+use crate::program::UnaryOp;
 
 use crate::tokenizer::Token;
+
+use crate::utility::append_tabs;
+
+pub fn unparse_program(program: Program) -> String {
+    unparse_function(program.function)
+}
+
+fn unparse_function(function: Function) -> String {
+    let mut result = append_tabs(0);
+
+    result.push_str("int ");
+    result.push_str(&function.name);
+    result.push_str("() {\n");
+    result.push_str(&unparse_statement(function.statement, 4));
+    result.push_str("}");
+
+    result
+}
+
+fn unparse_statement(statement: Statement, indent_level: u8) -> String {
+    let mut result = append_tabs(indent_level);
+
+    result.push_str("return ");
+    result.push_str(&unparse_expression(statement.exp, 0));
+    result.push_str(";\n");
+
+    result
+}
+
+fn unparse_expression(expression: Expression, indent_level: u8) -> String {
+    let mut result = append_tabs(indent_level);
+
+    if expression.value.is_some() {
+        result.push_str(&expression.value.unwrap().to_string());
+    } else {
+        result.push_str(&unparse_unary_op(*expression.unary_op.unwrap(), indent_level));
+    }
+
+    result
+}
+
+fn unparse_unary_op(unary_op: UnaryOp, indent_level: u8) -> String {
+    let mut result = append_tabs(indent_level);
+
+    match unary_op.token {
+        Token::Keyword(keyword) => {
+            result.push_str(&keyword);
+            result.push_str(&unparse_expression(*unary_op.exp, indent_level));
+        },
+
+        _tmp => println!("Error generating disassembly! Unary op value: {:?}", _tmp),
+    }
+
+    result
+}
+
 
 pub fn parse_program(tokens: &mut VecDeque<Token>) -> Program {
     Program {
@@ -134,17 +191,52 @@ fn parse_statement(tokens: &mut VecDeque<Token>) -> Statement {
 fn parse_expression(tokens: &mut VecDeque<Token>) -> Expression {
     let token = tokens.pop_front().unwrap();
 
-    let mut value: u32 = 0;
+    let mut value: u8 = 0;
+    let mut unary_op = UnaryOp {
+        token: Token::Keyword(String::from("")),
+        exp: Box::new(Expression {
+            value: None,
+            unary_op: None,
+        }),
+    };
+
+    let mut num = false;
 
     match token {
+        Token::Keyword(keyword) => {
+            if keyword == String::from("-") {
+                unary_op.token = Token::Keyword(keyword);
+                unary_op.exp = Box::new(parse_expression(tokens));
+            } else if keyword == String::from("~") {
+                unary_op.token = Token::Keyword(keyword);
+                unary_op.exp = Box::new(parse_expression(tokens));
+            } else if keyword == String::from("!") {
+                unary_op.token = Token::Keyword(keyword);
+                unary_op.exp = Box::new(parse_expression(tokens));
+            } else {
+                println!("Error parsing expression! Value: {:?}", Token::Keyword(keyword));
+            }
+        },
+
         Token::Number(i) => {
+            num = true;
             value = i;
         },
 
         _tmp => println!("Error parsing expression! Value: {:?}", _tmp),
     };
 
-    Expression {
-        value: value,
+    if num {
+        Expression {
+            value: Some(value),
+
+            unary_op: None,
+        }
+    } else {
+        Expression {
+            value: None,
+
+            unary_op: Some(Box::new(unary_op)),
+        }
     }
 }

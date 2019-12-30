@@ -2,6 +2,7 @@ use std::collections::VecDeque;
 
 use crate::tokenizer::Token;
 use crate::tokenizer::tokenize;
+use crate::parser::parse_program;
 
 use std::str::FromStr;
 use std::char::ParseCharError;
@@ -33,147 +34,13 @@ pub struct Statement {
 
 #[derive(Debug)]
 pub struct Expression {
-    pub value: u32,
+    pub value: Option<u8>, // 8 for now, we need different assembly for 16 b/c registers are 8 bit
+
+    pub unary_op: Option<Box<UnaryOp>>,
 }
 
-pub fn parse_program(tokens: &mut VecDeque<Token>) -> Program {
-    Program {
-        function: parse_function(tokens),
-    }
-}
-
-pub fn parse_function(tokens: &mut VecDeque<Token>) -> Function {
-    // Int
-    let mut token = tokens.pop_front().unwrap();
-
-    match token {
-        Token::Word(word) => {
-            if word != String::from("int") {
-                println!("Error parsing statement! No type");
-            }
-        },
-
-        _ => println!("Error parsing statement!"),
-    }
-
-    // Name
-    let mut name = "foo".to_owned();
-    token = tokens.pop_front().unwrap();
-
-    match token {
-        Token::Word(word) => {
-            name = word;
-        }
-
-        _ => println!("Error parsing statement! No function name"),
-    }
-
-    // (
-    token = tokens.pop_front().unwrap();
-
-    match token {
-        Token::Keyword(keyword) => {
-            if keyword != String::from("(") {
-                println!("Error parsing statement! No (");
-            }
-        }
-
-        _ => println!("Error parsing statement! No ("),
-    }
-
-    // )
-    token = tokens.pop_front().unwrap();
-
-    match token {
-        Token::Keyword(keyword) => {
-            if keyword != String::from(")") {
-                println!("Error parsing statement! No )");
-            }
-        }
-
-        _ => println!("Error parsing statement! No )"),
-    }
-
-    // {
-    token = tokens.pop_front().unwrap();
-
-    match token {
-        Token::Keyword(keyword) => {
-            if keyword != String::from("{") {
-                println!("Error parsing statement! No {{");
-            }
-        }
-
-        _ => println!("Error parsing statement! No {{"),
-    }
-
-    let statement = parse_statement(tokens);
-
-    // }
-    token = tokens.pop_front().unwrap();
-
-    match token {
-        Token::Keyword(keyword) => {
-            if keyword != String::from("}") {
-                println!("Error parsing statement! No }}");
-            }
-        }
-
-        _ => println!("Error parsing statement! No }}"),
-    }
-
-    Function {
-        name: name,
-        statement: statement,
-    }
-}
-
-pub fn parse_statement(tokens: &mut VecDeque<Token>) -> Statement {
-    let mut token = tokens.pop_front().unwrap();
-
-    match token {
-        Token::Word(word) => {
-            if word != String::from("return") {
-                println!("Error parsing statement! No return");
-            }
-        },
-
-        _ => println!("Error parsing statement!"),
-    }
-
-    let exp = parse_expression(tokens);
-
-    token = tokens.pop_front().unwrap();
-
-    match token {
-        Token::Keyword(keyword) => {
-            if keyword != String::from(";") {
-                println!("Error parsing statement! No ;");
-            }
-        }
-
-        _ => println!("Error parsing statement! No ;"),
-    }
-
-    Statement {
-        exp: exp,
-    }
-}
-
-pub fn parse_expression(tokens: &mut VecDeque<Token>) -> Expression {
-    let token = tokens.pop_front().unwrap();
-
-    let mut value: u32 = 0;
-
-    match token {
-        Token::Number(i) => {
-            value = i;
-        },
-
-        _ => println!("Error parsing expression!"),
-    };
-
-    Expression {
-        value: value,
-    }
+#[derive(Debug)]
+pub struct UnaryOp {
+    pub token: Token,
+    pub exp: Box<Expression>,
 }
